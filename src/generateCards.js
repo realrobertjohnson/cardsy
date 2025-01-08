@@ -2,8 +2,8 @@ import { COLOR_MAP } from "./constants";
 const { board } = window.miro;
 const generateCardObjectFor = (object, x, y) => {
   let cardColor = "#2399f3";
-  
-  if(object?.style?.fillColor) {
+
+  if (object?.style?.fillColor) {
     const objectFillColor = object.style.fillColor;
     if (objectFillColor !== "transparent") {
       if (COLOR_MAP[objectFillColor]) {
@@ -34,7 +34,7 @@ export const generateCards = async () => {
 
   // filtering out shapes from all the selected widgets.
   selectedWidgets = selectedWidgets.filter((item) => {
-    return ["shape", "text", "sticky_note", "mindmap_node", "card"].includes(item.type); // added "card"
+    return ["shape", "text", "sticky_note", "mindmap_node", "card", "stencil"].includes(item.type); // added "card"
   });
 
   const cardsObjects = selectedWidgets.map((item) =>
