@@ -34,6 +34,11 @@ export const generateCards = async () => {
     // get selected widgets
     let selectedWidgets = await board.experimental.getSelection();
 
+    if (selectedWidgets.length === 0) {
+      await miro.board.notifications.showError("No objects selected. Select something and try again.");
+      return;
+    }
+
     // filtering out shapes from all the selected widgets.
     selectedWidgets = selectedWidgets.filter((item) => {
       return ["shape", "text", "sticky_note", "mindmap_node", "card", "stencil"].includes(item.type); // added "card"
