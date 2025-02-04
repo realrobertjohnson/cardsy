@@ -29,20 +29,31 @@ const generateCardObjectFor = (object, x, y) => {
 
 export const generateCards = async () => {
 
-  // get selected widgets
-  let selectedWidgets = await board.experimental.getSelection();
+  try {
 
-  // filtering out shapes from all the selected widgets.
-  selectedWidgets = selectedWidgets.filter((item) => {
-    return ["shape", "text", "sticky_note", "mindmap_node", "card", "stencil"].includes(item.type); // added "card"
-  });
+    // get selected widgets
+    let selectedWidgets = await board.experimental.getSelection();
 
-  const cardsObjects = selectedWidgets.map((item) =>
-    generateCardObjectFor(item, item.x + 800, item.y)
-  );
+    // filtering out shapes from all the selected widgets.
+    selectedWidgets = selectedWidgets.filter((item) => {
+      return ["shape", "text", "sticky_note", "mindmap_node", "card", "stencil"].includes(item.type); // added "card"
+    });
 
-  const cardsGeneratedPromise = cardsObjects.map(async (card) => {
-    const cardResult = board.createCard(card);
-    return cardResult;
-  });
+    const cardsObjects = selectedWidgets.map((item) =>
+      generateCardObjectFor(item, item.x + 800, item.y) // Added 100 to y, to stagger
+    );
+
+    const cardsGeneratedPromise = cardsObjects.map(async (card) => {
+      const cardResult = board.createCard(card);
+      return cardResult;
+    });
+
+    await miro.board.notifications.showInfo(
+      `${selectedWidgets.length} card${selectedWidgets.length === 1 ? " was" : "s were"} successfully created!`
+    );
+
+  } catch (error) {
+    console.error("Error executing Cardsy:", error);
+    await miro.board.notifications.showError("An error occurred while creating cards.");
+  }
 };
