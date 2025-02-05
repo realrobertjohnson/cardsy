@@ -44,14 +44,32 @@ export const generateCards = async () => {
       return ["shape", "text", "sticky_note", "mindmap_node", "card", "stencil"].includes(item.type); // added "card"
     });
 
+    const newCards = [];
+
     const cardsObjects = selectedWidgets.map((item) =>
-      generateCardObjectFor(item, item.x + 800, item.y) // Added 100 to y, to stagger
+      generateCardObjectFor(item, item.x + 800, item.y)
     );
 
     const cardsGeneratedPromise = cardsObjects.map(async (card) => {
-      const cardResult = board.createCard(card);
+      const cardResult = await board.createCard(card); // Wait for the card to be created
+      newCards.push(cardResult); // Store the result in newCards
       return cardResult;
     });
+
+    await Promise.all(cardsGeneratedPromise); // Ensure all cards are created before proceeding
+
+    await miro.board.deselect();
+    await miro.board.select({ id: newCards.map(f => f.id) });
+
+    // const cardsObjects = selectedWidgets.map((item) =>
+    //   generateCardObjectFor(item, item.x + 800, item.y)
+
+    // );
+
+    // const cardsGeneratedPromise = cardsObjects.map(async (card) => {
+    //   const cardResult = board.createCard(card);
+    //   return cardResult;
+    // });
 
     await miro.board.notifications.showInfo(
       `${selectedWidgets.length} card${selectedWidgets.length === 1 ? " was" : "s were"} successfully created!`
