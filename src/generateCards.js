@@ -1,5 +1,10 @@
 import { COLOR_MAP } from "./constants";
 
+const CARD_WIDTH = 320;
+const CARD_HEIGHT = 180;
+const GRID_COLUMNS = 4;
+const GRID_GAP = 50;
+
 const generateCardObjectFor = (object, x, y) => {
   let cardColor = "#2399f3";
 
@@ -46,18 +51,26 @@ export const generateCards = async () => {
     const supportedTypes = ["shape", "text", "sticky_note", "mindmap_node", "card", "stencil"];
     selectedWidgets = selectedWidgets.filter((item) => supportedTypes.includes(item.type));
 
-    const cardObjects = selectedWidgets.map((item) =>
-      generateCardObjectFor(item, item.x + 800, item.y)
-    );
+    // Use the first selected item as the grid origin
+    const originX = selectedWidgets[0].x + 800;
+    const originY = selectedWidgets[0].y;
+
+    const cardObjects = selectedWidgets.map((item, index) => {
+      const col = index % GRID_COLUMNS;
+      const row = Math.floor(index / GRID_COLUMNS);
+      const x = originX + col * (CARD_WIDTH + GRID_GAP);
+      const y = originY + row * (CARD_HEIGHT + GRID_GAP);
+      return generateCardObjectFor(item, x, y);
+    });
 
     const newCards = await createCards(cardObjects);
 
     await miro.board.deselect({ id: selectedWidgets.map((w) => w.id) });
     await miro.board.select({ id: newCards.map((c) => c.id) });
+
     await miro.board.viewport.zoomTo(newCards);
 
     const currentViewport = await miro.board.viewport.get();
-
     await miro.board.viewport.set({
       viewport: currentViewport,
       padding: {
