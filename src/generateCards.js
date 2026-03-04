@@ -52,8 +52,22 @@ export const generateCards = async () => {
 
     const newCards = await createCards(cardObjects);
 
-    await miro.board.deselect();
+    await miro.board.deselect({ id: selectedWidgets.map((w) => w.id) });
     await miro.board.select({ id: newCards.map((c) => c.id) });
+    await miro.board.viewport.zoomTo(newCards);
+
+    const currentViewport = await miro.board.viewport.get();
+
+    await miro.board.viewport.set({
+      viewport: currentViewport,
+      padding: {
+        top: 100,
+        bottom: 100,
+        left: 100,
+        right: 100,
+      },
+      animationDurationInMs: 300,
+    });
 
     await miro.board.notifications.showInfo(
       `${selectedWidgets.length} card${selectedWidgets.length === 1 ? " was" : "s were"} successfully created!`
