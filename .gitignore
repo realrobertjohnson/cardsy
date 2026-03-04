@@ -15,4 +15,14 @@ yarn-error.log*
 
 # local env files
 .env
-dist
+.env.local
+.env.*.local
+
+# build output
+/dist
+
+# editor
+.vscode/
+
+# OS
+.DS_Store
